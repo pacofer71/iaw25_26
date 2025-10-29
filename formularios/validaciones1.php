@@ -1,5 +1,5 @@
 <?php
-$provincias = ['Almeria', 'Granada', 'Málaga', 'Cadiz', 'Jaen'];
+include 'datos.php';
 function limpiarCadena(string $cadena): string
 {
     return htmlspecialchars(trim($cadena));

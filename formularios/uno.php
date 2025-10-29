@@ -1,5 +1,5 @@
 <?php
-$provincias = ['Almeria', 'Granada', 'Málaga', 'Cadiz', 'Jaen', 'Murcia'];
+    include 'datos.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">

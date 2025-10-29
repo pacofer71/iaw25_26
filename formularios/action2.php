@@ -1,6 +1,6 @@
 <?php
 // require e include, require_once, include_once 
-
+require "validaciones1.php";
 
 //1.- Recojo los datos y filtro
 $nombre = limpiarCadena($_POST['nombre']); //$_POST['nombre_que_aparece_en_name']
@@ -15,6 +15,7 @@ $provincia = limpiarCadena($_POST['provincia']);
 //email que sea un email valido
 //password entre 6 y 20 caracteres
 $errores = [];
+
 if (!esLongitudCampoValido($nombre, 5, 20)) {
     $errores[] = "*** Error el campo nombre debe tener entre 5 y 20 caracteres";
 }
