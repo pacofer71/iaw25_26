@@ -1,12 +1,65 @@
 <?php
 require "./utilidades/datos.php";
+require "./utilidades/validaciones.php"; //$aficionesTodas
 
 if (isset($_POST['nombre'])) {
     //Si estoy aqui es porque le hab dado al submit, procesamos el form
     //1.- Recogemos y limpiamos lo que nos llega del form
-    echo "<pre>";
-    var_dump($_POST);
-    echo "</pre>";
+    $nombre=limpiarCadenas($_POST['nombre']);
+    $email=limpiarCadenas($_POST['email']);
+    $aficiones=(isset($_POST['aficiones'])) ? $_POST['aficiones'] : [];
+    //$aficiones = $_POST['aficiones'] ?? [];
+    if(count($aficiones)){
+        foreach($aficiones as $indice=>$aficion){
+            $aficiones[$indice]=limpiarCadenas($aficion);
+        }
+    }
+    $administrador = $_POST['administrador'] ?? "Error";
+    $administrador=limpiarCadenas($administrador);
+    $provincia=limpiarCadenas($_POST['provincia']);
+
+    //2.- Hacemos las validaciones requeridas.
+    $errores=[];
+    if(!esLongitudCadenaValida($nombre, 3, 30)){
+        $errores[]="Error, el campo nombre debe tener entre 3 y 30 caracteres";
+    }
+    if(!esEmailValido($email)){
+        $errores[]="Error, se eseraba un email válido.";
+    }
+    if(!sonAficionesValidas($aficiones)){
+        $errores[]="Aficiónes inválidas o no seleccion ninguna";
+    }
+    if(!esAdminstradorValido($administrador)){
+        $errores[]="Error, opcion Admin inválida o no seleccionó ninguna";
+    }
+    if(!esProvinciaValida($provincia)){
+        $errores[]="Provincia inválida o no seleccion ninguna";
+    }
+
+    //3.- si hay errores los mostramos
+    if(count($errores)){
+        echo "<ol>";
+        foreach($errores as $error){
+            echo "<li>$error</li>";
+        }
+        echo "</ol>";
+        die(); //exit();
+    }
+
+    //4.- Si no los hay decido que hacer, es este caso muestro los datos
+    echo "LOS DATOS ESTAN CORRECTOS Y SON:<br>";
+    echo "<b>Nombre:</b> $nombre<br>";
+    echo "<b>eMAIL:</b> $email<br>";
+    echo "<b>Opcion Administrador:</b> $administrador<br>";
+    echo "<b>Provincia:</b> $provincia<br>";
+    echo "<b>Aficiones:</b>";
+    echo "<ul>";
+    foreach($aficiones as $item){
+        echo "<li>$item</li>";
+    }
+    echo "</ul>";
+    die();
+
 
 }
 ?>
@@ -55,7 +108,7 @@ if (isset($_POST['nombre'])) {
                 </span>
                 <div class="space-y-1">
                     <?php
-                        foreach($aficiones as $afi){
+                        foreach($aficionesTodas as $afi){
                             echo <<< TXT
                                 <label class="inline-flex items-center">
                                 <input type="checkbox" name="aficiones[]" value="$afi" class="mr-2"> $afi
