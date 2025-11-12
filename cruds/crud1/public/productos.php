@@ -1,4 +1,5 @@
 <?php
+session_start();
 require __DIR__ . "/../bd/conexion.php";
 $q = "select * from productos order by id desc";
 $productos = mysqli_query($conexion, $q);
@@ -13,8 +14,11 @@ $productos = mysqli_query($conexion, $q);
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- CDN iconos fontawesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- CDN Sweet alert 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Document</title>
 </head>
+
 <body class="p-8">
     <div class="relative overflow-x-auto">
         <div class="flex flex-row-reverse">
@@ -43,30 +47,50 @@ $productos = mysqli_query($conexion, $q);
                 </tr>
             </thead>
             <tbody>
-                <?php foreach($productos as $item):
-                     ?>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        <?= $item['nombre'] ?>
-                    </th>
-                    <td class="px-6 py-4">
-                        <?= $item['descripcion'] ?>
-                    </td>
-                    <td class="px-6 py-4">
-                        <?= $item['precio'] ?>
-                    </td>
-                    <td class="px-6 py-4">
-                        <?= $item['stock'] ?>
-                    </td>
-                    <td class="px-6 py-4">
-                        Botones...
-                    </td>
-                </tr>
+                <?php foreach ($productos as $item):
+                ?>
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
+                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            <?= $item['nombre'] ?>
+                        </th>
+                        <td class="px-6 py-4">
+                            <?= $item['descripcion'] ?>
+                        </td>
+                        <td class="px-6 py-4">
+                            <?= $item['precio'] ?>
+                        </td>
+                        <td class="px-6 py-4">
+                            <?= $item['stock'] ?>
+                        </td>
+                        <td class="px-6 py-4">
+                            <form method="POST" action="delete.php">
+                                <input type="hidden" name="id" value="<?= $item['id'] ?>" />
+                                <button type="submit">
+                                    <i class="fas fa-trash text-red-500"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
                 <?php endforeach ?>
             </tbody>
         </table>
     </div>
-
+<?php
+    if(isset($_SESSION['mensaje'])){
+        //mostramos la alerte de sweetalert2
+        echo <<<TXT
+        <script>
+          Swal.fire({
+            icon: "success",
+            title: "{$_SESSION['mensaje']}",
+            showConfirmButton: false,
+            timer: 1500
+            });
+        </script>
+        TXT;
+        unset($_SESSION['mensaje']);
+    }
+?>
 </body>
 
 </html>
