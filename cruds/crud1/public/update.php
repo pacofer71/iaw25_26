@@ -38,7 +38,7 @@ if (isset($_POST['nombre'])) {
     if (!longitudCampovalida("nombre", $nombre, 4, 100)) {
         $errores = true;
     } else {
-        if (existeNombre($conexion, $nombre)) $errores = true;
+        if (existeNombreUpdate($conexion, $nombre, $id)) $errores = true;
     }
     if (!longitudCampovalida("descripcion", $descripcion, 10, 500)) {
         $errores = true;
@@ -51,17 +51,17 @@ if (isset($_POST['nombre'])) {
     }
     //si hay errores los muestro y si no guardo los datos
     if ($errores) {
-        header("Location:nuevo.php");
+        header("Location:update.php?idPost=$id");
         exit;
     }
     // si he llegado aquí todo correcto, gradamos el producto
-    $q = "insert into productos(nombre, descripcion, precio, stock) values(?, ?, ?, ?)";
+    $q = "update productos set nombre=?, descripcion=?, precio=?, stock=? where id=?";
     //creamos una 'conexion mazada para trbajar con parametros'
     $stmt = mysqli_stmt_init($conexion);
     //Preparamos la consulta
     mysqli_stmt_prepare($stmt, $q);
     //decimos cada parametro ? a quien se corresponde y el tipo de dato s string, i entero, d decimal, b booleano
-    mysqli_stmt_bind_param($stmt, 'ssdi', $nombre, $descripcion, $precio, $stock);
+    mysqli_stmt_bind_param($stmt, 'ssdii', $nombre, $descripcion, $precio, $stock, $id);
     //Ejecutamos la consulta ya sin riesgo de inyeccion sql
     mysqli_stmt_execute($stmt);
     //Cerramos la llave supertocha
@@ -69,7 +69,7 @@ if (isset($_POST['nombre'])) {
     //cerramos la conexion normal
     mysqli_close($conexion);
 
-    $_SESSION['mensaje'] = "Producto Guardado";
+    $_SESSION['mensaje'] = "Producto Editado";
     header("Location:productos.php");
     exit;
 }
@@ -89,7 +89,7 @@ if (isset($_POST['nombre'])) {
 
 <body class="p-8">
     <div class="bg-white shadow-lg rounded-lg p-8 w-1/3 mx-auto">
-        <form action="update.php" method="POST">
+        <form action="update.php?idPost=<?= $id ?>" method="POST">
             <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
                 <i class="fa-solid fa-box"></i> Editar Producto
             </h2>
