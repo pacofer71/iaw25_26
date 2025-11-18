@@ -64,8 +64,13 @@ $productos = mysqli_query($conexion, $q);
                         </td>
                         <td class="px-6 py-4">
                             <form method="POST" action="delete.php">
-                                <input type="hidden" name="id" value="<?= $item['id'] ?>" />
-                                <button type="submit">
+                                <input type="hidden" name="idProducto" value="<?= $item['id'] ?>" />
+                                <!-- Estop es para update no forma parte del form -->
+                                <a href="update.php?idPost=<?= $item['id'] ?>">
+                                    <i class="fas fa-edit mr-1"></i>
+                                </a>
+                                <!-- Fin del a href para update -->
+                                <button type="submit" onclick="return confirm('¿Realmente desea borrar el producto?');">
                                     <i class="fas fa-trash text-red-500"></i>
                                 </button>
                             </form>
