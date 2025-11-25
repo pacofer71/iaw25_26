@@ -4,6 +4,22 @@ function limpiarCadenas(string $cadena): string
     return htmlspecialchars(trim($cadena));
 }
 
+function esLongitudCampoValido(string $nomCampo, string $valorCampo, int $min, int $max): bool{
+    if(strlen($valorCampo)<$min || strlen($valorCampo)>$max){
+        $_SESSION["err_$nomCampo"]="*** Error, el campo $nomCampo debe tener entre $min y $max caracteres";
+        return false;
+    }
+    return true;
+}
+function esEstadoValido(string $estado): bool{
+    $validos=['Publicado', 'Borrador'];
+    if(!in_array($estado, $validos)){
+        $_SESSION['err_estado']="*** Error, estado No válido o no seleccionado.";
+        return false;
+    }
+    return true;
+}
+
 function esEmailValido(string $email): bool
 {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -43,4 +59,17 @@ function pintarError($nomError)
         echo "<p class='mt-1 text-sm text-red-500 italic'>{$_SESSION[$nomError]}</p>";
         unset($_SESSION[$nomError]);
     }
+}
+
+function recuperarIdusuario(mysqli $conexion, string $email):int{
+    $q="select id from usuarios where email='$email'";
+    $datos=mysqli_query($conexion, $q);
+    $user_id=100;
+    foreach($datos as $dato){
+        $user_id=$dato['id'];
+    }
+    return $user_id;
+
+    
+
 }
