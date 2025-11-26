@@ -1,4 +1,5 @@
 <?php
+session_start();
 require __DIR__ . "/../basedatos/conexion.php";
 $q = "select posts.*, email from posts, usuarios where 
     usuarios.id=posts.user_id AND estado='Publicado' order by id desc";
@@ -22,9 +23,18 @@ mysqli_close($conexion);
 
 <body class="p-8 bg-blue-100">
     <div class="flex flex-row-reverse mb-2">
+        <?php if(!isset($_SESSION['email'])): ?>
         <a href="login.php" class="p-2 rounded-lg bg-green-400 hover:bg-green-600 text-white font-bold">
             <i class="fa-solid fa-arrow-right-to-bracket mr-1"></i>LOGIN
         </a>
+        <?php else: ?>
+            <a href="close.php" class="p-2 bg-red-500 hover:bg-red-700 rounded-lg font-bold text-white">
+                SALIR
+            </a>
+            <a href="admin.php" class="mr-2 p-2 bg-green-500 hover:bg-green-700 rounded-lg font-bold text-white">
+                ADMINISTRAR POSTS
+            </a>
+        <?php endif; ?>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Card de ejemplo -->

@@ -30,6 +30,9 @@ mysqli_close($conexion);
 <body class="bg-blue-100">
     <nav class="p-2 bg-purple-400 w-full">
         <div class="flex flex-row-reverse w-full">
+            <a href="index.php" class="p-2 bg-blue-500 hover:bg-blue-700 rounded-lg font-bold text-white ml-2">
+                INICIO
+            </a>
             <a href="close.php" class="p-2 bg-red-500 hover:bg-red-700 rounded-lg font-bold text-white">
                 SALIR
             </a>
@@ -76,7 +79,15 @@ mysqli_close($conexion);
                         <p class="p-2 rounded-xl text-white font-bold text-center <?= $color ?>"><?= $item['estado'] ?></p>
                     </td>
                     <td class="px-6 py-4">
-                        231
+                        <form action="borrar.php" method="POST">
+                            <input type='hidden' name='id' value="<?= $item['id'] ?>" />
+                            <a href="update.php?id=<?= $item['id'] ?>">
+                                <i class="fas fa-edit hover:text-lg mr-1"></i>
+                            </a>
+                            <button type="submit" onclick="return confirm('¿Desea Borrar este Post definitivamente?');">
+                                <i class="fas fa-trash hover:text-xl"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -84,7 +95,23 @@ mysqli_close($conexion);
             </tbody>
         </table>
     </div>
+<?php
+    //mensajes de swwetalert2
+    if(isset($_SESSION['mensaje'])){
+        echo <<<TXT
+            <script>
+                Swal.fire({
+                    icon: "success",
+                    title: "{$_SESSION['mensaje']}",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            </script>
+        TXT;
+        unset($_SESSION['mensaje']);
+    }
 
+?>
 </body>
 
 </html>

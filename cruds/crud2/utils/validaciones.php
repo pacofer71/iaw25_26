@@ -69,7 +69,29 @@ function recuperarIdusuario(mysqli $conexion, string $email):int{
         $user_id=$dato['id'];
     }
     return $user_id;
-
-    
-
 }
+function postPerteneceUsuario(mysqli $conexion, int $id_usu, int $id_post):bool{
+    $q="select id from posts where user_id='$id_usu' AND id=?";
+    $stmt=mysqli_stmt_init($conexion);
+    mysqli_stmt_prepare($stmt, $q);
+    mysqli_stmt_bind_param($stmt, 'i', $id_post);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $id);
+    mysqli_stmt_fetch($stmt);
+    mysqli_stmt_close($stmt);
+    if(!$id){
+        return false;
+    }
+    return true;
+}
+
+
+
+
+
+
+
+
+
+
+
