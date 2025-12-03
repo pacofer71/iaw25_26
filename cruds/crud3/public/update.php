@@ -1,8 +1,38 @@
 <?php
     session_start();
+    function salir(){
+        header("Location:index.php");
+        exit;
+    }
+    $id=filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+    if(!$id){
+        salir();
+    }
+    require __DIR__."/../bbdd/conexion.php";
+    $q="select nombre, email, telefono, genero, estado_cuenta from usuarios where id=?";
+    $stmt=mysqli_stmt_init($conexion);
+    mysqli_stmt_prepare($stmt, $q);
+    mysqli_stmt_bind_param($stmt, 'i', $id);
+    mysqli_stmt_execute($stmt);
+    //guardamos sabemos que esto devuelve una fila con los datos del usuario
+    // o ninguna si no encuentra ningun usuario con ese id
+    mysqli_stmt_bind_result($stmt, $nombreR, $emailR, $telefonoR, $generoR, $estadoR);
+    mysqli_stmt_fetch($stmt);
+    mysqli_stmt_close($stmt);
+    if(!$nombreR){
+        $_SESSION['mensaje']='NO EXISTE EL USUARIO A EDITAR';
+        salir();
+    }
+    $estadoActivo=($estadoR=='activo') ? 'checked' : '';
+    $estadoInactivo=($estadoR=='inactivo') ? 'checked' : '';
+    
+    $masculinoCk=($generoR=='masculino') ? 'checked' : '';
+    $femeninoCk=($generoR=='femenino') ? 'checked' : '';
+    $otroCk=($generoR=='otro') ? 'checked' : '';
+
     require __DIR__."/../utils/validaciones.php";
     if(isset($_POST['nombre'])){
-        require __DIR__."/../bbdd/conexion.php";
+        
         //1.- recogemos y limpiamos
         $nombre=limpiarTexto($_POST['nombre']);
         $email=limpiarTexto($_POST['email']);
@@ -78,6 +108,7 @@
                 <input
                     type="text"
                     name="nombre"
+                    value="<?= $nombreR ?>"
                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
                     <?php pintarError('err_nombre'); ?>
                 </div>
@@ -90,6 +121,7 @@
                 <input
                     type="email"
                     name="email"
+                    value="<?= $emailR ?>"
                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
                     <?php pintarError('err_email'); ?>
             </div>
@@ -102,6 +134,7 @@
                 <input
                     type="text"
                     name="telefono"
+                    value="<?= $telefonoR ?>"
                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
                     <?php pintarError('err_telefono'); ?>
             </div>
@@ -114,17 +147,17 @@
 
                 <div class="flex items-center gap-6 mt-2">
                     <label class="flex items-center gap-2">
-                        <input type="radio" name="genero" value="masculino" class="h-4 w-4">
+                        <input type="radio" name="genero" value="masculino" class="h-4 w-4" <?= $masculinoCk ?>>
                         <span>Masculino</span>
                     </label>
 
                     <label class="flex items-center gap-2">
-                        <input type="radio" name="genero" value="femenino" class="h-4 w-4">
+                        <input type="radio" name="genero" value="femenino" class="h-4 w-4" <?= $femeninoCk ?>>
                         <span>Femenino</span>
                     </label>
 
                     <label class="flex items-center gap-2">
-                        <input type="radio" name="genero" value="otro" class="h-4 w-4">
+                        <input type="radio" name="genero" value="otro" class="h-4 w-4" <?= $otroCk ?>>
                         <span>Otro</span>
                     </label>
                 </div>
@@ -139,12 +172,12 @@
 
                 <div class="flex items-center gap-6 mt-2">
                     <label class="flex items-center gap-2">
-                        <input type="radio" name="estado" value="activo" class="h-4 w-4">
+                        <input type="radio" name="estado" value="activo" class="h-4 w-4" <?= $estadoActivo ?> >
                         <span>Activo</span>
                     </label>
 
                     <label class="flex items-center gap-2">
-                        <input type="radio" name="estado" value="inactivo" class="h-4 w-4">
+                        <input type="radio" name="estado" value="inactivo" class="h-4 w-4" <?= $estadoInactivo ?>>
                         <span>Inactivo</span>
                     </label>
                 </div>

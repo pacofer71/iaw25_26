@@ -1,4 +1,5 @@
 <?php
+session_start();
 require __DIR__ . "/../bbdd/conexion.php";
 $q = "select * from usuarios order by id desc";
 $usuarios = mysqli_query($conexion, $q);
@@ -56,8 +57,15 @@ mysqli_close($conexion);
                         </td>
                         <td class="py-3 px-4"><?= $item['fecha_registro'] ?></td>
                         <td class="py-3 px-4 text-center">
-                            <button class="text-blue-600 hover:text-blue-800 mx-1">Editar</button>
-                            <button class="text-red-600 hover:text-red-800 mx-1">Eliminar</button>
+                            <form method="POST" action="borrar.php">
+                                <input type="hidden" name="id" value="<?= $item['id'] ?>" />
+                                <a href="update.php?id=<?= $item['id'] ?>">
+                                    <i class="fas fa-edit mr-2"></i>
+                                </a>
+                                <button type="submit" onclick="return confirm('¿Borrar definitivamente al usuario?');">
+                                    <i class="fas fa-trash text-red-500"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -65,7 +73,21 @@ mysqli_close($conexion);
         </table>
 
     </div>
-
+    <?php
+    if (isset($_SESSION['mensaje'])) {
+        echo <<<TXT
+            <script>
+            Swal.fire({
+            icon: "success",
+            title: "{$_SESSION['mensaje']}",
+            showConfirmButton: false,
+            timer: 1500
+            });
+            </script>
+        TXT;
+        unset($_SESSION['mensaje']);
+    }
+    ?>
 </body>
 
 </html>
