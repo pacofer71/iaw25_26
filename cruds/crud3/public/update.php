@@ -1,83 +1,84 @@
 <?php
-    session_start();
-    function salir(){
-        header("Location:index.php");
-        exit;
-    }
-    $id=filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-    if(!$id){
-        salir();
-    }
-    require __DIR__."/../bbdd/conexion.php";
-    $q="select nombre, email, telefono, genero, estado_cuenta from usuarios where id=?";
-    $stmt=mysqli_stmt_init($conexion);
-    mysqli_stmt_prepare($stmt, $q);
-    mysqli_stmt_bind_param($stmt, 'i', $id);
-    mysqli_stmt_execute($stmt);
-    //guardamos sabemos que esto devuelve una fila con los datos del usuario
-    // o ninguna si no encuentra ningun usuario con ese id
-    mysqli_stmt_bind_result($stmt, $nombreR, $emailR, $telefonoR, $generoR, $estadoR);
-    mysqli_stmt_fetch($stmt);
-    mysqli_stmt_close($stmt);
-    if(!$nombreR){
-        $_SESSION['mensaje']='NO EXISTE EL USUARIO A EDITAR';
-        salir();
-    }
-    $estadoActivo=($estadoR=='activo') ? 'checked' : '';
-    $estadoInactivo=($estadoR=='inactivo') ? 'checked' : '';
-    
-    $masculinoCk=($generoR=='masculino') ? 'checked' : '';
-    $femeninoCk=($generoR=='femenino') ? 'checked' : '';
-    $otroCk=($generoR=='otro') ? 'checked' : '';
+session_start();
+function salir()
+{
+    header("Location:index.php");
+    exit;
+}
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if (!$id) {
+    salir();
+}
+require __DIR__ . "/../bbdd/conexion.php";
+$q = "select nombre, email, telefono, genero, estado_cuenta from usuarios where id=?";
+$stmt = mysqli_stmt_init($conexion);
+mysqli_stmt_prepare($stmt, $q);
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+//guardamos sabemos que esto devuelve una fila con los datos del usuario
+// o ninguna si no encuentra ningun usuario con ese id
+mysqli_stmt_bind_result($stmt, $nombreR, $emailR, $telefonoR, $generoR, $estadoR);
+mysqli_stmt_fetch($stmt);
+mysqli_stmt_close($stmt);
+if (!$nombreR) {
+    $_SESSION['mensaje'] = 'NO EXISTE EL USUARIO A EDITAR';
+    salir();
+}
+$estadoActivo = ($estadoR == 'activo') ? 'checked' : '';
+$estadoInactivo = ($estadoR == 'inactivo') ? 'checked' : '';
 
-    require __DIR__."/../utils/validaciones.php";
-    if(isset($_POST['nombre'])){
-        
-        //1.- recogemos y limpiamos
-        $nombre=limpiarTexto($_POST['nombre']);
-        $email=limpiarTexto($_POST['email']);
-        $telefono=limpiarTexto($_POST['telefono']);
-        $genero = $_POST['genero'] ?? "error";
-        $estado= $_POST['estado'] ?? "error";
-        $genero=limpiarTexto($genero);
-        $estado=limpiarTexto($estado);
-        //2. hacemos las validaciones
-        $errores=false;
-        if(!emailValido($email)){
-            $errores=true;
-        }else{
-            if(!emailUnico($conexion, $email)) $errores=true;
-        }
-        if(!longitudCampoValida('nombre', $nombre, 5, 60)){
-            $errores=true;
-        }
-        if(!estadoValido($estado)){
-            $errores=true;
-        }
-        if(!telefonoValido($telefono)){
-            $errores=true;
-        }
-        if(!generoValido($genero)){
-            $errores=true;
-        }
-        //una vez hechas las validaciones si hay errores
-        //los mostramos cargando otra vez la página y si no guardaremos el usuario
-        if($errores){
-            header("Location:nuevo.php");
-            exit;
-        }
-        // Si he llegado aquí todo correcto guardamos el usuario
-        $q="insert into usuarios(nombre, email, telefono, genero, estado_cuenta) values(?, ?, ?, ?, ?)";
-        $stmt=mysqli_stmt_init($conexion);
-        mysqli_stmt_prepare($stmt, $q);
-        mysqli_stmt_bind_param($stmt, 'sssss', $nombre, $email, $telefono, $genero, $estado);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-        mysqli_close($conexion);
-        $_SESSION['mensaje']="Usuario creado correctamente";
-        header("Location:index.php");
+$masculinoCk = ($generoR == 'masculino') ? 'checked' : '';
+$femeninoCk = ($generoR == 'femenino') ? 'checked' : '';
+$otroCk = ($generoR == 'otro') ? 'checked' : '';
+
+require __DIR__ . "/../utils/validaciones.php";
+if (isset($_POST['nombre'])) {
+
+    //1.- recogemos y limpiamos
+    $nombre = limpiarTexto($_POST['nombre']);
+    $email = limpiarTexto($_POST['email']);
+    $telefono = limpiarTexto($_POST['telefono']);
+    $genero = $_POST['genero'] ?? "error";
+    $estado = $_POST['estado'] ?? "error";
+    $genero = limpiarTexto($genero);
+    $estado = limpiarTexto($estado);
+    //2. hacemos las validaciones
+    $errores = false;
+    if (!emailValido($email)) {
+        $errores = true;
+    } else {
+        if (!emailUnico($conexion, $email, $id)) $errores = true;
+    }
+    if (!longitudCampoValida('nombre', $nombre, 5, 60)) {
+        $errores = true;
+    }
+    if (!estadoValido($estado)) {
+        $errores = true;
+    }
+    if (!telefonoValido($telefono)) {
+        $errores = true;
+    }
+    if (!generoValido($genero)) {
+        $errores = true;
+    }
+    //una vez hechas las validaciones si hay errores
+    //los mostramos cargando otra vez la página y si no guardaremos el usuario
+    if ($errores) {
+        header("Location:update.php?id=$id");
         exit;
     }
+    // Si he llegado aquí todo correcto guardamos el usuario
+    $q = "update usuarios set nombre=?, email=?, telefono=?, genero=?, estado_cuenta=? where id=?";
+    $stmt = mysqli_stmt_init($conexion);
+    mysqli_stmt_prepare($stmt, $q);
+    mysqli_stmt_bind_param($stmt, 'sssssi', $nombre, $email, $telefono, $genero, $estado, $id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    mysqli_close($conexion);
+    $_SESSION['mensaje'] = "Usuario editado correctamente";
+    header("Location:index.php");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 
@@ -98,7 +99,7 @@
 <body class="bg-green-100 p-8">
     <h3 class="txt-xl text-center font-bold mb-1">Crear Usuario</h3>
     <div class="w-1/2 p-2 rounded-xl shadow-xl mx-auto bg-pink-50">
-        <form action="nuevo.php" method="post" class="space-y-5">
+        <form action="update.php?id=<?= $id ?>" method="post" class="space-y-5">
 
             <!-- Nombre de usuario -->
             <div>
@@ -110,8 +111,8 @@
                     name="nombre"
                     value="<?= $nombreR ?>"
                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
-                    <?php pintarError('err_nombre'); ?>
-                </div>
+                <?php pintarError('err_nombre'); ?>
+            </div>
 
             <!-- Email -->
             <div>
@@ -123,7 +124,7 @@
                     name="email"
                     value="<?= $emailR ?>"
                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
-                    <?php pintarError('err_email'); ?>
+                <?php pintarError('err_email'); ?>
             </div>
 
             <!-- Teléfono -->
@@ -136,7 +137,7 @@
                     name="telefono"
                     value="<?= $telefonoR ?>"
                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
-                    <?php pintarError('err_telefono'); ?>
+                <?php pintarError('err_telefono'); ?>
             </div>
 
             <!-- Género -->
@@ -172,7 +173,7 @@
 
                 <div class="flex items-center gap-6 mt-2">
                     <label class="flex items-center gap-2">
-                        <input type="radio" name="estado" value="activo" class="h-4 w-4" <?= $estadoActivo ?> >
+                        <input type="radio" name="estado" value="activo" class="h-4 w-4" <?= $estadoActivo ?>>
                         <span>Activo</span>
                     </label>
 

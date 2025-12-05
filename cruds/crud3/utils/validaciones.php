@@ -9,11 +9,15 @@ function emailValido(string $email): bool{
     }
     return true;
 }
-function emailUnico(mysqli $con, string $email):bool{
-    $q="select id from usuarios where email=?";
+function emailUnico(mysqli $con, string $email, ?int $id=null):bool{
+    $q=($id==null) ? "select id from usuarios where email=?" : "select id from usuarios where email=? AND id !=?";
     $stmt=mysqli_stmt_init($con);
     mysqli_stmt_prepare($stmt, $q);
-    mysqli_stmt_bind_param($stmt, 's', $email);
+    if($id==null){
+        mysqli_stmt_bind_param($stmt, 's', $email);
+    }else{
+         mysqli_stmt_bind_param($stmt, 'si', $email, $id);
+    }
     mysqli_stmt_execute($stmt);
     mysqli_stmt_store_result($stmt);
     $filasDevueltas=mysqli_stmt_num_rows($stmt);
